@@ -812,6 +812,34 @@
   /* ── PIZZA OUTPUT ── */
   .subsection-title { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); font-weight: 700; margin: 18px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-light); }
   .method-step-p { font-size: 14px; color: var(--text-mid); line-height: 1.6; margin-left: 40px; }
+
+  /* ── NUTRITION CARD ── */
+  .nutrition-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .nutrition-tog-group { display: flex; gap: 6px; }
+  .nutrition-tog-btn { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); background: var(--parchment); color: var(--text-dark); cursor: pointer; font-family: 'Source Sans 3', sans-serif; transition: all 0.15s; }
+  .nutrition-tog-btn.active-orange { background: var(--orange); color: var(--text-dark); border-color: var(--orange); }
+  .nutrition-slice-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-mid); font-weight: 600; }
+  .nutrition-slice-row select { font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--parchment); color: var(--text-dark); font-family: 'Source Sans 3', sans-serif; cursor: pointer; }
+  .nutrition-savings { background: var(--green-light); border: 1px solid var(--green); color: #3B6D11; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; margin-bottom: 14px; display: none; }
+  .nutrition-section-label { font-size: 11px; color: var(--text-muted); font-style: italic; margin-bottom: 8px; }
+  .nutrition-comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .nutrition-comp-card { background: var(--parchment-mid); border-radius: 8px; padding: 12px; border: 0.5px solid var(--border); }
+  .nutrition-comp-label { font-size: 11px; color: var(--text-mid); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .nutrition-comp-cal { font-size: 20px; font-weight: 700; color: var(--orange); font-family: 'Playfair Display', serif; line-height: 1; margin-bottom: 4px; }
+  .nutrition-comp-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .nutrition-macro-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .npill-p { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: var(--green-light); color: #3B6D11; }
+  .npill-c { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: #FFF8EE; color: #854F0B; }
+  .npill-f { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: var(--orange-light); color: #712B13; }
+  .nutrition-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .nutrition-summary-card { background: var(--brown-dark); border-radius: 8px; padding: 14px; }
+  .nutrition-summary-label { font-size: 10px; color: #A8B898; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .nutrition-summary-cal { font-size: 24px; font-weight: 700; color: var(--orange); font-family: 'Playfair Display', serif; line-height: 1; margin-bottom: 8px; }
+  .nutrition-summary-macros { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tpill-p { background: #27500A; color: #C0DD97; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+  .tpill-c { background: #633806; color: #FAC775; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+  .tpill-f { background: #712B13; color: #F5C4B3; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+  .nutrition-disclaimer { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -1365,6 +1393,102 @@
         </div>
       </div>
 
+      <!-- NUTRITION -->
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-header-tag">Nutrition</div>
+          <div class="output-header-title" id="nutrition-title">Calorie & Macro Breakdown</div>
+        </div>
+        <div class="output-body">
+          <div class="nutrition-controls">
+            <div class="nutrition-tog-group">
+              <button class="nutrition-tog-btn active-orange" onclick="setNutritionMode('standard',this)">Standard</button>
+              <button class="nutrition-tog-btn" onclick="setNutritionMode('lighter',this)">Lighter</button>
+            </div>
+            <div class="nutrition-slice-row">
+              Slices:
+              <select id="pizza-slice-count" onchange="renderNutrition()">
+                <option value="6">6</option>
+                <option value="8" selected>8</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="nutrition-savings" id="nutrition-savings-badge">✓ Lighter saves calories and reduces fat — part skim mozz, no oil drizzle</div>
+
+          <div class="nutrition-section-label">Per component — full pizza values</div>
+
+          <div class="nutrition-comp-grid">
+            <div class="nutrition-comp-card">
+              <div class="nutrition-comp-label">Dough</div>
+              <div class="nutrition-comp-cal" id="n-dough-cal">—</div>
+              <div class="nutrition-comp-sub">Per ball · unchanged</div>
+              <div class="nutrition-macro-row">
+                <span class="npill-p" id="n-dough-p">P —</span>
+                <span class="npill-c" id="n-dough-c">C —</span>
+                <span class="npill-f" id="n-dough-f">F —</span>
+              </div>
+            </div>
+            <div class="nutrition-comp-card">
+              <div class="nutrition-comp-label">Sauce</div>
+              <div class="nutrition-comp-cal" id="n-sauce-cal">—</div>
+              <div class="nutrition-comp-sub">San Marzano · olive oil</div>
+              <div class="nutrition-macro-row">
+                <span class="npill-p" id="n-sauce-p">P —</span>
+                <span class="npill-c" id="n-sauce-c">C —</span>
+                <span class="npill-f" id="n-sauce-f">F —</span>
+              </div>
+            </div>
+            <div class="nutrition-comp-card">
+              <div class="nutrition-comp-label">Cheese</div>
+              <div class="nutrition-comp-cal" id="n-cheese-cal">—</div>
+              <div class="nutrition-comp-sub" id="n-cheese-sub">—</div>
+              <div class="nutrition-macro-row">
+                <span class="npill-p" id="n-cheese-p">P —</span>
+                <span class="npill-c" id="n-cheese-c">C —</span>
+                <span class="npill-f" id="n-cheese-f">F —</span>
+              </div>
+            </div>
+            <div class="nutrition-comp-card">
+              <div class="nutrition-comp-label">Oil drizzle</div>
+              <div class="nutrition-comp-cal" id="n-oil-cal">—</div>
+              <div class="nutrition-comp-sub" id="n-oil-sub">—</div>
+              <div class="nutrition-macro-row">
+                <span class="npill-p">P 0g</span>
+                <span class="npill-c">C 0g</span>
+                <span class="npill-f" id="n-oil-f">F —</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:1px;background:var(--orange);margin:14px 0;"></div>
+
+          <div class="nutrition-summary-grid">
+            <div class="nutrition-summary-card">
+              <div class="nutrition-summary-label">Total pizza</div>
+              <div class="nutrition-summary-cal" id="n-total-cal">—</div>
+              <div class="nutrition-summary-macros">
+                <span class="tpill-p" id="n-total-p">P —</span>
+                <span class="tpill-c" id="n-total-c">C —</span>
+                <span class="tpill-f" id="n-total-f">F —</span>
+              </div>
+            </div>
+            <div class="nutrition-summary-card">
+              <div class="nutrition-summary-label" id="n-slice-label">Per slice (8)</div>
+              <div class="nutrition-summary-cal" id="n-slice-cal">—</div>
+              <div class="nutrition-summary-macros">
+                <span class="tpill-p" id="n-slice-p">P —</span>
+                <span class="tpill-c" id="n-slice-c">C —</span>
+                <span class="tpill-f" id="n-slice-f">F —</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="nutrition-disclaimer">Estimates based on USDA FoodData Central. Values may vary ±10%.</div>
+        </div>
+      </div>
+
       <!-- BAKING -->
       <div class="output-card">
         <div class="output-header">
@@ -1797,7 +1921,14 @@ function buildCheeseRecipe(d) {
     <div class="output-row"><span class="output-row-label">Low moisture whole milk mozzarella, grated</span><span class="output-row-value highlight">${sf(cheeseTotal)}</span></div>
     <div class="output-row"><span class="output-row-label">Pecorino Romano or Parmesan (optional)</span><span class="output-row-value highlight">To taste</span></div>`;
 
-  // Baking steps based on equipment
+  // Store nutrition data for the nutrition card
+  currentPizzaNutritionData = d;
+  currentNutritionMode = 'standard';
+  document.querySelectorAll('.nutrition-tog-btn').forEach(b => b.classList.remove('active-orange'));
+  document.querySelector('.nutrition-tog-btn').classList.add('active-orange');
+  renderNutrition();
+
+  // Baking steps
   document.getElementById('baking-title').textContent = 'Baking on ' + surfaceLabel();
   document.getElementById('baking-steps-body').innerHTML = buildBakingSteps();
 }
@@ -1883,6 +2014,148 @@ function buildBakingSteps() {
       <div class="method-step-header"><div class="method-step-num">${sliceStep}</div><div class="method-step-title">Slice and serve</div></div>
       <p class="method-step-p">Slice and serve immediately. NY style is best eaten fresh — the undercarriage softens as it sits.</p>
     </div>`;
+// ── NUTRITION ──
+let currentNutritionMode = 'standard';
+let currentPizzaNutritionData = null;
+
+function setNutritionMode(mode, btn) {
+  currentNutritionMode = mode;
+  btn.parentElement.querySelectorAll('.nutrition-tog-btn').forEach(b => b.classList.remove('active-orange'));
+  btn.classList.add('active-orange');
+  if (currentPizzaNutritionData) renderNutrition();
+}
+
+function renderNutrition() {
+  if (!currentPizzaNutritionData) return;
+  const d = currentPizzaNutritionData;
+  const isLighter = currentNutritionMode === 'lighter';
+  const slices = parseInt(document.getElementById('pizza-slice-count').value);
+  const size = parseInt(sel.size);
+  const balls = d.balls;
+
+  // Sauce macros per pizza by size
+  const sauceMacros = {
+    10: { cal:54,  p:1,  c:6,  f:4  },
+    12: { cal:70,  p:2,  c:7,  f:5  },
+    14: { cal:87,  p:2,  c:9,  f:6  },
+    16: { cal:114, p:3,  c:11, f:8  }
+  };
+
+  // Cheese amounts
+  const cheeseAmountsStd = { 10:110, 12:140, 14:185, 16:240 };
+  const cheeseAmountsLt  = { 10:72,  12:91,  14:120, 16:156 };
+  const cheeseAmt = isLighter ? cheeseAmountsLt[size] : cheeseAmountsStd[size];
+
+  // Calorie/macro rates per 100g
+  const cheeseRateStd = { cal:300, p:20, c:2.2, f:23.6 }; // whole milk low moisture
+  const cheeseRateLt  = { cal:250, p:25, c:2.2, f:16   }; // part skim low moisture
+
+  const rate = isLighter ? cheeseRateLt : cheeseRateStd;
+  const cheeseCal = Math.round(cheeseAmt * rate.cal / 100);
+  const cheeseP   = Math.round(cheeseAmt * rate.p   / 100);
+  const cheeseC   = Math.round(cheeseAmt * rate.c   / 100 * 10) / 10;
+  const cheeseF   = Math.round(cheeseAmt * rate.f   / 100);
+  const cheeseSub = isLighter
+    ? cheeseAmt + 'g part skim mozz'
+    : cheeseAmt + 'g whole milk mozz';
+
+  // Oil drizzle
+  const oilCal = isLighter ? 0 : 44;
+  const oilF   = isLighter ? 0 : 5;
+  const oilSub = isLighter ? 'Removed' : 'Crust edge only';
+
+  // Dough macros from calculator data
+  const doughCal = d.totalCal;
+  const doughP   = Math.round(d.totalFlour * 0.127 * balls);
+  const doughC   = Math.round(d.totalFlour * 0.72  * balls);
+  const doughF   = Math.round((d.oil * 0.9 + d.sweet * 0.01) * balls);
+
+  // Sauce totals scaled by balls
+  const sm = sauceMacros[size];
+  const sauceCal = Math.round(sm.cal * balls);
+  const sauceP   = Math.round(sm.p   * balls);
+  const sauceC   = Math.round(sm.c   * balls);
+  const sauceF   = Math.round(sm.f   * balls);
+
+  // Cheese/oil scaled by balls
+  const totalCheeseCal = cheeseCal * balls;
+  const totalCheeseP   = cheeseP   * balls;
+  const totalCheeseC   = Math.round(cheeseC * balls * 10) / 10;
+  const totalCheeseF   = cheeseF   * balls;
+  const totalOilCal    = oilCal    * balls;
+  const totalOilF      = oilF      * balls;
+
+  // Grand totals
+  const grandCal = doughCal + sauceCal + totalCheeseCal + totalOilCal;
+  const grandP   = doughP   + sauceP   + totalCheeseP;
+  const grandC   = doughC   + sauceC   + Math.round(totalCheeseC);
+  const grandF   = doughF   + sauceF   + totalCheeseF + totalOilF;
+
+  // Savings vs standard
+  const stdCheeseCal = Math.round(cheeseAmountsStd[size] * 300 / 100) * balls;
+  const stdOilCal    = 44 * balls;
+  const stdGrand     = doughCal + sauceCal + stdCheeseCal + stdOilCal;
+  const stdF         = doughF + sauceF + Math.round(cheeseAmountsStd[size] * 23.6 / 100) * balls + 5 * balls;
+  const savingsCal   = stdGrand - grandCal;
+  const savingsF     = stdF - grandF;
+
+  // Update component cards
+  document.getElementById('n-dough-cal').textContent  = doughCal.toLocaleString() + ' kcal';
+  document.getElementById('n-dough-p').textContent    = 'P ' + doughP + 'g';
+  document.getElementById('n-dough-c').textContent    = 'C ' + doughC + 'g';
+  document.getElementById('n-dough-f').textContent    = 'F ' + doughF + 'g';
+  document.getElementById('n-sauce-cal').textContent  = sauceCal + ' kcal';
+  document.getElementById('n-sauce-p').textContent    = 'P ' + sauceP + 'g';
+  document.getElementById('n-sauce-c').textContent    = 'C ' + sauceC + 'g';
+  document.getElementById('n-sauce-f').textContent    = 'F ' + sauceF + 'g';
+  document.getElementById('n-cheese-cal').textContent = totalCheeseCal.toLocaleString() + ' kcal';
+  document.getElementById('n-cheese-sub').textContent = cheeseSub;
+  document.getElementById('n-cheese-p').textContent   = 'P ' + totalCheeseP + 'g';
+  document.getElementById('n-cheese-c').textContent   = 'C ' + totalCheeseC + 'g';
+  document.getElementById('n-cheese-f').textContent   = 'F ' + totalCheeseF + 'g';
+  document.getElementById('n-oil-cal').textContent    = totalOilCal + ' kcal';
+  document.getElementById('n-oil-sub').textContent    = oilSub;
+  document.getElementById('n-oil-f').textContent      = 'F ' + totalOilF + 'g';
+
+  // Summary cards
+  document.getElementById('n-total-cal').textContent  = grandCal.toLocaleString() + ' kcal';
+  document.getElementById('n-total-p').textContent    = 'P ' + grandP + 'g';
+  document.getElementById('n-total-c').textContent    = 'C ' + grandC + 'g';
+  document.getElementById('n-total-f').textContent    = 'F ' + grandF + 'g';
+
+  const sliceCal = Math.round(grandCal / slices);
+  const sliceP   = Math.round(grandP   / slices * 10) / 10;
+  const sliceC   = Math.round(grandC   / slices * 10) / 10;
+  const sliceF   = Math.round(grandF   / slices * 10) / 10;
+
+  document.getElementById('n-slice-label').textContent = 'Per slice (' + slices + ')';
+  document.getElementById('n-slice-cal').textContent   = sliceCal + ' kcal';
+  document.getElementById('n-slice-p').textContent     = 'P ' + sliceP + 'g';
+  document.getElementById('n-slice-c').textContent     = 'C ' + sliceC + 'g';
+  document.getElementById('n-slice-f').textContent     = 'F ' + sliceF + 'g';
+
+  // Savings badge
+  const badge = document.getElementById('nutrition-savings-badge');
+  if (isLighter && savingsCal > 0) {
+    badge.textContent = '✓ Lighter saves ~' + savingsCal + ' kcal and ~' + savingsF + 'g fat per pizza vs standard';
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // Update cheese ingredient rows to reflect lighter/standard
+  const cheeseRows = document.getElementById('cheese-ingredient-rows');
+  if (cheeseRows) {
+    cheeseRows.innerHTML = `
+      <div class="output-row"><span class="output-row-label">
+        ${isLighter ? 'Low moisture <strong>part skim</strong> mozzarella, grated' : 'Low moisture <strong>whole milk</strong> mozzarella, grated'}
+      </span><span class="output-row-value highlight">${fw(cheeseAmt * balls)}</span></div>
+      <div class="output-row"><span class="output-row-label">Pecorino Romano or Parmesan (optional)</span><span class="output-row-value highlight">To taste</span></div>`;
+  }
+
+  // Update title
+  document.getElementById('nutrition-title').textContent =
+    'Calorie & Macro Breakdown — ' + (isLighter ? 'Lighter' : 'Standard');
 }
 </script>
 </body>
